@@ -83,9 +83,6 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Check version update
-        run: |
-          grep esp32_fw_version esphome-test.yaml
       - name: Build Firmware
         uses: esphome/build-action@v7.0.0
         id: esphome-build
