@@ -1,4 +1,4 @@
-name: Build-Satellite-Firmware
+name: Build-ESPhome-Test-Firmware
 
 on:
   push:
