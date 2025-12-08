@@ -2,7 +2,8 @@ logger:
   level: INFO
 ota:
   - platform: esphome
-    password: ${ota_password}
+    password: changeme-otapw
+    # password: ${ota_password}
 time:
   - platform: sntp
     id: sntp_time
