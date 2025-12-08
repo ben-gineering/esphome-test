@@ -1,0 +1,19 @@
+esphome:
+  name: ${name}
+  comment: "ESP32-S3 DevKitC"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Common buses
+i2c:
+  - id: i2c0
+    sda: GPIO8
+    scl: GPIO9
+    frequency: 100kHz
+
+# Example status LED
+status_led:
+  pin: GPIO13
