@@ -7,22 +7,18 @@ on:
   workflow_dispatch:
 
 env:
-  DEFAULT_PYTHON: "3.9"
+  DEFAULT_PYTHON: "3.13.7"
 
 jobs:
-
   build-firmware:
     uses: ./.github/workflows/build.yaml
     with:
       files: |
-        config/satellite1.yaml
-        config/satellite1.ld2410.yaml
-        config/satellite1.ld2450.yaml
-      esphome-version: 2025.7.5
+        esphome-test.yaml
+      esphome-version: 2025.11.4
       release-summary: develop-branch
       release-url:
       release-version:
-
 
   create_artifact_matrix:
     name: Create artifact matrix
