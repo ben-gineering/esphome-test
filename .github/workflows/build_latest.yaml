@@ -67,8 +67,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release view develop-latest >/dev/null 2>&1 || \
-          gh release create develop-latest -t "Develop Latest" -n "Rolling pre-release for develop branch" -p
+          gh release view develop-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1 || \
+          gh release create develop-latest -t "Develop Latest" -n "Rolling pre-release for develop branch" -p --repo "${GITHUB_REPOSITORY}"
 
       - name: Upload assets (clobber)
         env:
@@ -79,4 +79,4 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No assets to upload"; exit 0; 
           fi
-          gh release upload develop-latest "${files[@]}" --clobber
+          gh release upload develop-latest "${files[@]}" --clobber --repo "${GITHUB_REPOSITORY}"
