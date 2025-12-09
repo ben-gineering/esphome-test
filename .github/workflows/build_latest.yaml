@@ -60,6 +60,8 @@ jobs:
         run: |
           mkdir -p build
           find files -name "*.ota.bin" -exec cp {} build/ \;
+          find files -name "*.factory.bin" -exec cp {} build/ \;
+          find files -name "*.elf" -exec cp {} build/ \;
           find files -name "manifest.json" -exec cp {} build/ \;
           echo "Collected files:" && ls -l build || true
 
@@ -75,7 +77,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           shopt -s nullglob
-          files=(build/*.ota.bin build/manifest.json)
+          files=(build/*.ota.bin build/*.factory.bin build/*.elf build/manifest.json)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No assets to upload"; exit 0; 
           fi
