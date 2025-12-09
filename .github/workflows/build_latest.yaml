@@ -1,4 +1,4 @@
-name: Build-ESPhome-Test-Firmware
+name: build_latest
 
 on:
   push:
