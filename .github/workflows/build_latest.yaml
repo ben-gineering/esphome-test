@@ -6,6 +6,9 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   DEFAULT_PYTHON: "3.13.7"
 
@@ -17,8 +20,6 @@ jobs:
         esphome-test.yaml
       esphome-version: 2025.11.4
       release-summary: develop-branch
-      release-url:
-      release-version:
 
   create_artifact_matrix:
     name: Create artifact matrix
@@ -43,3 +44,39 @@ jobs:
           echo "$artifacts" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           echo "matrix=$(ls files | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  publish-develop-prerelease:
+    name: Publish develop-latest pre-release
+    needs:
+      - build-firmware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: files
+
+      - name: Collect files for release
+        run: |
+          mkdir -p build
+          find files -name "*.ota.bin" -exec cp {} build/ \;
+          find files -name "manifest.json" -exec cp {} build/ \;
+          echo "Collected files:" && ls -l build || true
+
+      - name: Ensure develop-latest pre-release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view develop-latest >/dev/null 2>&1 || \
+          gh release create develop-latest -t "Develop Latest" -n "Rolling pre-release for develop branch" -p
+
+      - name: Upload assets (clobber)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+          files=(build/*.ota.bin build/manifest.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No assets to upload"; exit 0; 
+          fi
+          gh release upload develop-latest "${files[@]}" --clobber
