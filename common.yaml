@@ -2,9 +2,12 @@ logger:
   level: INFO
 
 http_request:
-  timeout: 60s
+  timeout: 90s
   follow_redirects: true
   redirect_limit: 5
+  buffer_size_rx: 8192
+  buffer_size_tx: 2048
+  watchdog_timeout: 45s
 ota:
   - platform: esphome
     password: changeme-otapw
