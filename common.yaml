@@ -2,9 +2,12 @@ logger:
   level: INFO
 
 http_request:
-  timeout: 60s
+  timeout: 90s
   follow_redirects: true
   redirect_limit: 5
+  buffer_size_rx: 8192
+  buffer_size_tx: 2048
+  watchdog_timeout: 45s
 ota:
   - platform: esphome
     password: changeme-otapw
@@ -27,8 +30,18 @@ sensor:
   - platform: wifi_signal
     name: "${name} WiFi RSSI"
     update_interval: 60s
+ 
+text_sensor:
+  - platform: template
+    name: "Firmware Version"
+    icon: mdi:information-box
+    entity_category: diagnostic
+    update_interval: 600s
+    lambda: |-
+      return { ESPHOME_PROJECT_VERSION };
 
 button:
+
   - platform: restart
     name: "${name} Restart"
   - platform: template
