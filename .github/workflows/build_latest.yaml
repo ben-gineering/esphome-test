@@ -63,6 +63,12 @@ jobs:
           find files -name "*.factory.bin" -exec cp {} build/ \;
           find files -name "*.elf" -exec cp {} build/ \;
           find files -name "manifest.json" -exec cp {} build/ \;
+          # Generate MD5 files for OTA binaries
+          shopt -s nullglob
+          for f in build/*.ota.bin; do
+            [ -e "$f" ] || continue
+            md5sum "$f" | awk '{print $1}' > "${f%.ota.bin}.ota.md5"
+          done
           echo "Collected files:" && ls -l build || true
 
       - name: Ensure develop-latest pre-release exists
@@ -77,7 +83,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           shopt -s nullglob
-          files=(build/*.ota.bin build/*.factory.bin build/*.elf build/manifest.json)
+          files=(build/*.ota.bin build/*.ota.md5 build/*.factory.bin build/*.elf build/manifest.json)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No assets to upload"; exit 0; 
           fi

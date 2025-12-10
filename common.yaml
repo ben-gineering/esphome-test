@@ -4,6 +4,7 @@ ota:
   - platform: esphome
     password: changeme-otapw
     # password: ${ota_password}
+  - platform: http_request
 time:
   - platform: sntp
     id: sntp_time
@@ -13,6 +14,7 @@ wifi:
     password: "${device_id}-ap"
 captive_portal:
 web_server:
+  version: 3
   port: 80
   include_internal: true
 
@@ -24,3 +26,15 @@ sensor:
 button:
   - platform: restart
     name: "${name} Restart"
+  - platform: template
+    name: "${name} Update Latest Release"
+    on_press:
+      - ota.http_request.flash:
+          url: https://github.com/ben-gineering/esphome-test/releases/latest/download/esphome-test.ota.bin
+          md5_url: https://github.com/ben-gineering/esphome-test/releases/latest/download/esphome-test.ota.md5
+  - platform: template
+    name: "${name} Update Develop-Latest"
+    on_press:
+      - ota.http_request.flash:
+          url: https://github.com/ben-gineering/esphome-test/releases/download/develop-latest/esphome-test.ota.bin
+          md5_url: https://github.com/ben-gineering/esphome-test/releases/download/develop-latest/esphome-test.ota.md5

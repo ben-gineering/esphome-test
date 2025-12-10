@@ -158,12 +158,19 @@ jobs:
           echo "Copying all files to build directory"
           find files -name "*.bin" -exec cp {} build/ \;
           find files -name "manifest.json" -exec cp {} build/ \;
+          # Generate MD5 files for OTA binaries
+          shopt -s nullglob
+          for f in build/*.ota.bin; do
+            [ -e "$f" ] || continue
+            md5sum "$f" | awk '{print $1}' > "${f%.ota.bin}.ota.md5"
+          done
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             build/*.bin
+            build/*.ota.md5
             build/manifest.json
           generate_release_notes: true
           append_body: true
