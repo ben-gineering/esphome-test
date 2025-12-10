@@ -27,8 +27,18 @@ sensor:
   - platform: wifi_signal
     name: "${name} WiFi RSSI"
     update_interval: 60s
+ 
+text_sensor:
+  - platform: template
+    name: "Firmware Version"
+    icon: mdi:information-box
+    entity_category: diagnostic
+    update_interval: 600s
+    lambda: |-
+      return { ESPHOME_PROJECT_VERSION };
 
 button:
+
   - platform: restart
     name: "${name} Restart"
   - platform: template
