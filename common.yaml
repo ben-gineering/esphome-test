@@ -1,5 +1,10 @@
 logger:
   level: INFO
+
+http_request:
+  timeout: 60s
+  follow_redirects: true
+  redirect_limit: 5
 ota:
   - platform: esphome
     password: changeme-otapw
