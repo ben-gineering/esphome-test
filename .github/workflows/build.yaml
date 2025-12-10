@@ -83,27 +83,28 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Install PyYAML for version patch
-        if: ${{ inputs.release-version != '' }}
-        run: |
-          python3 -m pip install --user pyyaml
-
       - name: Patch project.version in YAML (matrix file)
         if: ${{ inputs.release-version != '' }}
+        shell: bash
         run: |
-          python3 - <<'PY'
-          import os
-          import yaml
-          path = "${{ matrix.file }}"
-          version = "${{ inputs.release-version }}"  # keep leading 'v'
-          with open(path, "r", encoding="utf-8") as f:
-              data = yaml.safe_load(f) or {}
-          esphome = data.setdefault("esphome", {})
-          project = esphome.setdefault("project", {})
-          project["version"] = version
-          with open(path, "w", encoding="utf-8") as f:
-              yaml.safe_dump(data, f, sort_keys=False)
-          PY
+          set -euo pipefail
+          file="${{ matrix.file }}"
+          ver='${{ inputs.release-version }}'  # keep leading 'v'
+          awk -v ver="$ver" '
+            BEGIN { in_esphome=0; in_project=0; replaced=0 }
+            /^esphome:[[:space:]]*$/ { in_esphome=1 }
+            in_esphome && /^[^[:space:]]/ && $0 !~ /^esphome:/ { in_esphome=0; in_project=0 }
+            in_esphome && /^[[:space:]]*project:[[:space:]]*$/ { in_project=1 }
+            in_project && /^[^[:space:]]/ { in_project=0 }
+            in_project && /^[[:space:]]*version:[[:space:]]*/ && !replaced {
+              sub(/version:.*/, "version: \"" ver "\"")
+              replaced=1
+            }
+            { print }
+          ' "$file" > "$file.tmp"
+          mv "$file.tmp" "$file"
+
+          echo "Patched esphome.project.version to ${ver} in ${file}"
 
       - name: Build Firmware
         uses: esphome/build-action@v7.0.0
