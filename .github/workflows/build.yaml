@@ -83,6 +83,28 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Install PyYAML for version patch
+        if: ${{ inputs.release-version != '' }}
+        run: |
+          python3 -m pip install --user pyyaml
+
+      - name: Patch project.version in YAML (matrix file)
+        if: ${{ inputs.release-version != '' }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import yaml
+          path = "${{ matrix.file }}"
+          version = "${{ inputs.release-version }}"  # keep leading 'v'
+          with open(path, "r", encoding="utf-8") as f:
+              data = yaml.safe_load(f) or {}
+          esphome = data.setdefault("esphome", {})
+          project = esphome.setdefault("project", {})
+          project["version"] = version
+          with open(path, "w", encoding="utf-8") as f:
+              yaml.safe_dump(data, f, sort_keys=False)
+          PY
+
       - name: Build Firmware
         uses: esphome/build-action@v7.0.0
         id: esphome-build
